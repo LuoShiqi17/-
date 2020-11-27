@@ -1,0 +1,9 @@
+# depslib dependency file v1.0
+1606441300 source:e:\c实验\数据结构实验\4\main.cpp
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<string.h>
+	<malloc.h>
+	<windows.h>
+

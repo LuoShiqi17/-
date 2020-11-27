@@ -1,0 +1,467 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#include <malloc.h>
+#include <windows.h>
+#define TRUE 1
+#define FALSE 0
+#define OK 1
+#define ERROR 0
+#define INFEASIBLE -1
+#define OVERFLOW -2
+typedef int status;
+typedef int ElemType; //数据元素类型定义
+#define LIST_INIT_SIZE 100
+#define LISTINCREMENT  10
+typedef struct{  //顺序表（顺序结构）的定义
+      ElemType * elem;
+      int length;
+      int listsize;
+     }SqList;
+typedef struct{  //线性表的集合类型定义
+     struct { char name[30];
+               SqList L;
+      } elem[10];
+      int length;
+ }LISTS;
+status InitList(SqList& L);
+status DestroyList(SqList& L);
+status ClearList(SqList& L);
+status ListEmpty(SqList L);
+status ListLength(SqList L);
+status GetElem(SqList L,int i,ElemType &e);
+status LocateElem(SqList L,ElemType e);
+status PriorElem(SqList L,ElemType e,ElemType &pre);
+status NextElem(SqList L,ElemType e,ElemType &next);
+status ListInsert(SqList &L,int i,ElemType e);
+status ListDelete(SqList &L,int i,ElemType &e);
+status ListTraverse(SqList L);
+status SaveList(SqList L,char FileName[]);
+status LoadList(SqList &L,char FileName[]);
+status AddList(LISTS &Lists,char ListName[]);
+status RemoveList(LISTS &Lists,char ListName[]);
+int LocateList(LISTS Lists,char ListName[]);
+int main(void)
+{
+    SqList L;
+    LISTS Lists;
+    Lists.elem[10]={0};
+    Lists.length=0;
+    L.elem=NULL;
+    int op=1,ip=0,i=0,ss=0;
+    ElemType e=0,pre=0,next=0;
+    char name[30];
+    char ListName[30];
+    char FileName[30];
+    while(op){
+        system("cls");
+        printf("\n\n");
+        printf("      基于顺序结构的线性表基本操作演示系统 \n");
+        printf("-------------------------------------------------\n");
+        printf("    	  1. 显示全部线性表\n");
+        printf("    	  2. 增加一个线性表\n");
+        printf("    	  3. 删除一个线性表 \n");
+        printf("    	  4. 选择线性表\n");
+        printf("    	  5. 文件操作\n");
+        printf("    	  0. 退出系统\n");
+        printf("-------------------------------------------------\n");
+        printf("    请选择你的操作[0~5]:");
+        scanf("%d",&op);
+        switch(op)
+        {
+        case 1:
+            if(Lists.length==0) printf("无线性表\n");
+            else{
+                for(int j=0;j<Lists.length;j++){
+                    printf("%s\n",Lists.elem[j].name);
+                    ListTraverse(Lists.elem[j].L);
+                    putchar('\n');
+                }
+                printf("以上为全部线性表\n");
+            }
+            getchar();getchar();
+            break;
+        case 2:
+            printf("请输入增加的线性表的名字：");
+            scanf("%s",ListName);
+            if(AddList(Lists,ListName)==OK){
+                        printf("请输入线性表内容：");
+                        int e=0;
+                        scanf("%d",&e);
+                        while (e) {
+                            Lists.elem[Lists.length-1].L.elem[Lists.elem[Lists.length-1].L.length++]=e;
+                            scanf("%d",&e);
+                    }
+                    printf("执行成功\n");
+            }
+            else printf("执行失败\n");
+            getchar();getchar();
+            break;
+        case 3:
+            printf("请输入删除的线性表的名字：");
+            scanf("%s",ListName);
+            if(RemoveList(Lists,ListName)==OK) printf("执行成功\n");
+            else printf("执行失败\n");
+            getchar();getchar();
+            break;
+        case 4:
+            printf("请输入选择的线性表的名字：");
+            scanf("%s",ListName);
+            ss=LocateList(Lists,ListName);
+            if(LocateList(Lists,ListName)>0){
+                    printf("执行成功\n");
+                    ip=1;
+                    while(ip){
+                        L=Lists.elem[ss-1].L;
+                        system("cls");
+                        printf("\n\n");
+                        printf("      Menu for Linear Table On Sequence Structure \n");
+                        printf("-------------------------------------------------\n");
+                        printf("    	  1. InitList(不需要）       7. LocateElem\n");
+                        printf("    	  2. DestroyList    8. PriorElem\n");
+                        printf("    	  3. ClearList      9. NextElem \n");
+                        printf("    	  4. ListEmpty     10. ListInsert\n");
+                        printf("    	  5. ListLength    11. ListDelete\n");
+                        printf("    	  6. GetElem       12. ListTrabverse\n");
+                        printf("    	  0. Exit\n");
+                        printf("-------------------------------------------------\n");
+                        printf("    请选择你的操作[0~12]:");
+                        scanf("%d",&ip);
+                        switch(ip)
+                        {
+                        case 1:
+                            if(InitList(Lists.elem[ss-1].L)==OK) printf("线性表创建成功\n");
+                            else printf("线性表创建失败\n");
+                            getchar();getchar();
+                            break;
+                        case 2:
+                            if(DestroyList(Lists.elem[ss-1].L)==OK) printf("DestroyList执行成功\n");
+                            else printf("DestroyList执行失败\n");
+                            getchar();getchar();
+                            break;
+                        case 3:
+                            if(ClearList(Lists.elem[ss-1].L)==OK) printf("ClearList执行成功\n");
+                            else printf("ClearList执行失败\n");
+                            getchar();getchar();
+                            break;
+                        case 4:
+                            if(ListEmpty(Lists.elem[ss-1].L)==OK) printf("ListEmpty执行成功\n");
+                            else printf("ListEmpty执行失败\n");
+                            getchar();getchar();
+                            break;
+                        case 5:
+                            if(ListLength(Lists.elem[ss-1].L)>0){
+                                printf("%d\n",ListLength(Lists.elem[ss-1].L));
+                                printf("ListLength执行成功\n");
+                            }
+                            else printf("ListLength执行失败\n");
+                            getchar();getchar();
+                            break;
+                        case 6:
+                            printf("获取第i个元素，请输入i：");
+                            scanf("%d",&i);
+                            if(GetElem(Lists.elem[ss-1].L,i,e)==OK){
+                                printf("%d\n",e);
+                                printf("GetElem执行成功\n");
+                            }
+                            else printf("GetElem执行失败\n");
+                            getchar();getchar();
+                            break;
+                        case 7:
+                            printf("请输入元素e：");
+                            scanf("%d",&e);
+                            i=LocateElem(L,e);
+                            if(LocateElem(Lists.elem[ss-1].L,e)>0) printf("LocateElem执行成功，位置为%d\n",i);
+                            else printf("LocateElem执行失败\n");
+                            getchar();getchar();
+                            break;
+                        case 8:
+                            printf("输入元素e：");
+                            scanf("%d",&e);
+                            if(PriorElem(Lists.elem[ss-1].L,e,pre)==OK) printf("PriorElem执行成功,元素为：%d\n",pre);
+                            else printf("PriorElem执行失败\n");
+                            getchar();getchar();
+                            break;
+                        case 9:
+                            printf("输入元素e：");
+                            scanf("%d",&e);
+                            if(NextElem(Lists.elem[ss-1].L,e,next)==OK) printf("NextElem执行成功,元素为：%d\n",next);
+                            else printf("NextElem执行失败\n");
+                            getchar();getchar();
+                            break;
+                        case 10:
+                            printf("请输入要插入的元素e和位置i：");
+                            scanf("%d %d",&e,&i);
+                            if(ListInsert(Lists.elem[ss-1].L,i,e)==OK) printf("ListInsert执行成功\n");
+                            else printf("ListInsert执行失败\n");
+                            getchar();getchar();
+                            break;
+                        case 11:
+                            printf("请输入要删除元素的位置i：");
+                            scanf("%d",&i);
+                            if(ListDelete(Lists.elem[ss-1].L,i,e)==OK) printf("ListDelete执行成功\n");
+                            else printf("ListDelete执行失败\n");
+                            getchar();getchar();
+                            break;
+                        case 12:
+                            if(ListTraverse(Lists.elem[ss-1].L)==OK) printf("ListTraverse执行成功\n");
+                            else printf("ListTraverse执行失败\n");
+                            getchar();getchar();
+                            break;
+                        case 0:
+                            break;
+                        }
+                    }
+                    break;
+            }
+            else printf("执行失败\n");
+            getchar();getchar();
+            break;
+        case 5:
+            printf("请给FileName赋值：");
+            scanf("%s",FileName);
+            printf("请输入要读取的线性表：");
+            scanf("%s",name);
+            if(SaveList(Lists.elem[LocateList(Lists,name)-1].L,FileName)==OK) printf("SaveList执行成功\n");
+            else printf("SaveList执行失败\n");
+            free(Lists.elem[LocateList(Lists,name)-1].L.elem);
+            Lists.elem[LocateList(Lists,name)-1].L.elem=NULL;
+            if(LoadList(Lists.elem[LocateList(Lists,name)-1].L,FileName)==OK) printf("LoadList执行成功\n");
+            else printf("LoadList执行失败\n");
+            getchar();getchar();
+            break;
+        case 0:
+            break;
+        }
+    }
+    printf("    欢迎下次使用本系统\n");
+    return 0;
+}
+status InitList(SqList& L)
+{
+    if(L.elem==NULL){
+        int a[100]={NULL};
+        L.elem=&a[0];
+        L.length=0;
+        L.listsize=100;
+        return OK;
+    }
+    else return INFEASIBLE;
+}
+status DestroyList(SqList& L)
+{
+    if(L.elem==NULL)
+        return INFEASIBLE;
+    else{
+        free(L.elem);
+        L.elem=NULL;
+        L.length=0;
+        L.listsize=0;
+        return OK;
+    }
+}
+status ClearList(SqList& L)
+{
+    if(L.elem==NULL)
+        return INFEASIBLE;
+    else{
+        L.length=0;
+        return OK;
+    }
+}
+status ListEmpty(SqList L)
+{
+    if(L.elem==NULL)
+        return INFEASIBLE;
+    else if(L.length==0)
+        return TRUE;
+    else
+        return FALSE;
+}
+status ListLength(SqList L)
+{
+    if(L.elem==NULL)
+        return INFEASIBLE;
+    else
+        return L.length;
+}
+status GetElem(SqList L,int i,ElemType &e)
+{
+    if(L.elem==NULL)
+        return INFEASIBLE;
+    else if(i<=0||i>L.length)
+        return ERROR;
+    else{
+        e=L.elem[i-1];
+        return OK;
+    }
+}
+status LocateElem(SqList L,ElemType e)
+{
+    int i=0;
+    if(L.elem==NULL)
+        return INFEASIBLE;
+    else{
+        for(i;L.elem[i]!=e&&i<=L.length;i++) ;
+        i++;
+        if(i>L.length)
+            return ERROR;
+        else
+            return i;
+    }
+}
+status PriorElem(SqList L,ElemType e,ElemType &pre)
+{
+    int i=0;
+    if(L.elem==NULL)
+        return INFEASIBLE;
+    else{
+        if(e==L.elem[0])
+            return ERROR;
+        else{
+            for(i;e!=L.elem[i]&&i<L.length;i++) ;
+            if(i==L.length)
+                return ERROR;
+            else{
+                pre=L.elem[i-1];
+                return OK;
+            }
+        }
+    }
+}
+status NextElem(SqList L,ElemType e,ElemType &next)
+{
+    int i=0;
+    if(L.elem==NULL)
+        return INFEASIBLE;
+    else{
+        for(i;e!=L.elem[i]&&i<L.length;i++) ;
+        if(i==L.length||e==L.elem[L.length-1])
+            return ERROR;
+        else{
+            next=L.elem[i+1];
+            return OK;
+        }
+    }
+}
+status ListInsert(SqList &L,int i,ElemType e)
+{
+    int j;
+    ElemType *p;
+    if(L.elem==NULL)
+        return INFEASIBLE;
+    else{
+        if(L.length==0&&i==1){
+            L.elem[0]=e;
+            L.length++;
+            return OK;
+        }
+        else if(i<=0||i>L.length+1)
+            return ERROR;
+        else{
+            L.elem=(ElemType *)realloc(L.elem,(L.listsize+1)*sizeof(ElemType));
+            if(i==L.length+1){
+                L.elem[L.length++]=e;
+                return OK;
+            }
+            for(j=L.length;j>=i;j--)
+                L.elem[j]=L.elem[j-1];
+            L.length++;
+            L.elem[j]=e;
+            return OK;
+        }
+    }
+}
+status ListDelete(SqList &L,int i,ElemType &e)
+{
+    if(L.elem==NULL)
+        return INFEASIBLE;
+    else{
+        if(i<=0||i>L.length)
+            return ERROR;
+        else{
+            int j=0;
+            e=L.elem[i-1];
+            for(j=i-1;j<L.length-1;j++)
+                L.elem[j]=L.elem[j+1];
+            L.elem[L.length-1]=0;
+            L.length--;
+            return OK;
+        }
+    }
+}
+status ListTraverse(SqList L)
+{
+    int i=0;
+    if(L.elem==NULL)
+        return INFEASIBLE;
+    else{
+        if(L.length==0)
+            return OK;
+        for(i;i<L.length-1;i++)
+            printf("%d ",L.elem[i]);
+        printf("%d\n",L.elem[i]);
+        return OK;
+    }
+}
+status  SaveList(SqList L,char FileName[])
+{
+    if(L.elem==NULL) return INFEASIBLE;
+    FILE *fp;
+    fp=fopen(FileName,"w");
+    int i=0;
+    for(i;i<L.length;i++) fprintf(fp,"%d ",L.elem[i]);
+    fclose(fp);
+    return OK;
+}
+status  LoadList(SqList &L,char FileName[])
+{
+    if(L.elem!=NULL) return INFEASIBLE;
+    L.elem=(ElemType *) malloc(sizeof(ElemType)*LIST_INIT_SIZE);
+    FILE *fp;
+    fp=fopen(FileName,"r");
+    int i=0,s;
+    while(fscanf(fp,"%d",&s)!=EOF)
+        L.elem[i++]=s;
+    fclose(fp);
+    return OK;
+}
+status AddList(LISTS &Lists,char ListName[])
+{
+    Lists.elem[Lists.length].L.elem=(ElemType*)malloc(LIST_INIT_SIZE*sizeof(ElemType));
+    Lists.elem[Lists.length].L.length=0;
+    strcpy(Lists.elem[Lists.length].name,ListName);
+    Lists.length++;
+    return OK;
+}
+status RemoveList(LISTS &Lists,char ListName[])
+{
+    int i=0,j=0;
+    for(i;i<Lists.length;i++){
+        if(strcmp(Lists.elem[i].name,ListName)==0){
+            j=i;
+            free(Lists.elem[i].L.elem);
+            for(j;j<Lists.length-1;j++){
+                strcpy(Lists.elem[j].name,Lists.elem[j+1].name);
+                Lists.elem[j].L.elem=Lists.elem[j+1].L.elem;
+                Lists.elem[j].L.length=Lists.elem[j+1].L.length;
+            }
+            Lists.elem[Lists.length-1].L.elem=NULL;
+            Lists.elem[Lists.length-1].name[30]={0};
+            Lists.length=Lists.length-1;
+            return OK;
+        }
+    }
+    return ERROR;
+}
+int LocateList(LISTS Lists,char ListName[])
+{
+    int i=0;
+    for(i;i<Lists.length;i++){
+        if(strcmp(Lists.elem[i].name,ListName)==0){
+            return (i+1);
+        }
+    }
+    return 0;
+}
